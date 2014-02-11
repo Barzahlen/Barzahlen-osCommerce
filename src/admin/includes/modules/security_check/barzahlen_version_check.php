@@ -42,7 +42,7 @@ class securityCheck_barzahlen_version_check
         $barzahlenVersionCheck = new BarzahlenVersionCheck($barzahlenVersionCheckRequest, $barzahlenRepository);
 
         try {
-            if (MODULE_PAYMENT_BARZAHLEN_STATUS == "True" && !$barzahlenVersionCheck->isCheckedInLastWeek(new DateTime())) {
+            if (MODULE_PAYMENT_BARZAHLEN_STATUS == "True" && !$barzahlenVersionCheck->isCheckedInLastWeek(time())) {
                 $barzahlenVersionCheck->check(MODULE_PAYMENT_BARZAHLEN_SHOPID, MODULE_PAYMENT_BARZAHLEN_PAYMENTKEY, tep_get_version());
                 $displayUpdateAvailableMessage = $barzahlenVersionCheck->isNewVersionAvailable();
                 $this->barzahlenNewestVersion = $barzahlenVersionCheck->getNewestVersion();

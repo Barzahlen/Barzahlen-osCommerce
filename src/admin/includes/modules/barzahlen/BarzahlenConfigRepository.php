@@ -30,7 +30,7 @@ class BarzahlenConfigRepository
     /**
      * Gets the last update date
      *
-     * @return bool|DateTime
+     * @return bool|int
      */
     public function getLastUpdateDate()
     {
@@ -43,7 +43,7 @@ SQL;
         $result = tep_db_fetch_array($resource);
 
         if (is_array($result)) {
-            $lastUpdate = new DateTime($result['configuration_value']);
+            $lastUpdate = strtotime($result['configuration_value']);
         } else {
             $lastUpdate = false;
         }

@@ -81,10 +81,6 @@ class db_handler
         mysql_query("DROP TABLE " . TABLE_ORDERS);
         mysql_query("DROP TABLE " . TABLE_ORDERS_STATUS_HISTORY);
         mysql_query("DROP TABLE " . TABLE_ORDERS_TOTAL);
-        mysql_close();
-
-        $fh = fopen('src/logfiles/barzahlen.log', 'w');
-        fclose($fh);
     }
 }
 

@@ -22,6 +22,12 @@
  * @license     http://opensource.org/licenses/GPL-2.0  GNU General Public License, version 2 (GPL-2.0)
  */
 
+if(isset($_GET['state']) && preg_match('/^refund_/', $_GET['state'])) {
+    header("HTTP/1.1 200 OK");
+    header("Status: 200 OK");
+    die();
+}
+
 require_once('model.ipn.php');
 chdir('../../../../');
 require_once('includes/application_top.php');
