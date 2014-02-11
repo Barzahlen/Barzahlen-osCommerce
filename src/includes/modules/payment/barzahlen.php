@@ -36,7 +36,7 @@ class barzahlen {
   function barzahlen() {
 
     $this->code = 'barzahlen';
-    $this->version = '1.1.2';
+    $this->version = '1.1.3';
     $this->title = MODULE_PAYMENT_BARZAHLEN_TEXT_TITLE;
     $this->description = '<div align="center">' . tep_image('http://cdn.barzahlen.de/images/barzahlen_logo.png', MODULE_PAYMENT_BARZAHLEN_TEXT_TITLE) . '</div><br>' . MODULE_PAYMENT_BARZAHLEN_TEXT_DESCRIPTION;
     $this->sort_order = MODULE_PAYMENT_BARZAHLEN_SORT_ORDER;
@@ -154,9 +154,9 @@ class barzahlen {
     $transData['currency'] = $order->info['currency'];
     $transData['language'] = $language;
     $transData['order_id'] = $insert_id;
-    $transData['customer_street_nr'] = $order->customer['street_address'];
+    $transData['customer_street_nr'] = $this->_isoConvert($order->customer['street_address']);
     $transData['customer_zipcode'] = $order->customer['postcode'];
-    $transData['customer_city'] = $order->customer['city'];
+    $transData['customer_city'] = $this->_isoConvert($order->customer['city']);
     $transData['customer_country'] = $order->customer['country']['iso_code_2'];
     $transData['custom_var_0'] = '';
     $transData['custom_var_1'] = '';
@@ -497,6 +497,21 @@ class barzahlen {
     if(MODULE_PAYMENT_BARZAHLEN_DEBUG == 'True') {
       $this->_bzLog($message);
     }
+  }
+
+  /**
+   * Converts ISO-8859-1 strings to UTF-8 if necessary.
+   *
+   * @param string $string text which is to check
+   * @return string with utf-8 encoding
+   */
+  function _isoConvert($string) {
+
+    if(!preg_match('/\S/u', $string)) {
+      $string = utf8_encode($string);
+    }
+
+    return $string;
   }
 }
 ?>
