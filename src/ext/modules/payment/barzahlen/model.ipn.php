@@ -27,6 +27,7 @@ require_once('model.notification.php');
 class BZ_Ipn {
 
   var $receivedData = array(); //!< array for the received and checked data
+  var $orderId; //!< id of corresponding order
 
   const STATE_PENDING = 'pending';
   const STATE_PAID = 'paid';
@@ -39,7 +40,7 @@ class BZ_Ipn {
    * @return TRUE if received get array is valid and hash could be confirmed
    * @return FALSE if an error occurred
    */
-  public function sendResponseHeader($receivedData) {
+  function sendResponseHeader($receivedData) {
 
     $notification = new BZ_Notification;
 
@@ -66,10 +67,10 @@ class BZ_Ipn {
     $hashArray[] = $receivedData['customer_email'];
     $hashArray[] = $receivedData['amount'];
     $hashArray[] = $receivedData['currency'];
-    $hashArray[] = $receivedData['order_id'];
-    $hashArray[] = $receivedData['custom_var_0'];
-    $hashArray[] = $receivedData['custom_var_1'];
-    $hashArray[] = $receivedData['custom_var_2'];
+    $hashArray[] = array_key_exists('order_id', $receivedData) ? $receivedData['order_id'] : '';
+    $hashArray[] = '';
+    $hashArray[] = '';
+    $hashArray[] = '';
     $hashArray[] = MODULE_PAYMENT_BARZAHLEN_NOTIFICATIONKEY;
 
     if($receivedData['hash'] != hash('sha512', implode(';',$hashArray))) {
@@ -109,17 +110,25 @@ class BZ_Ipn {
 
     // check order
     $query = tep_db_query("SELECT * FROM ". TABLE_ORDERS ."
-                           WHERE orders_id = '". $this->receivedData['order_id'] ."'
-                             AND currency = '".$this->receivedData['currency']."'
+                           WHERE currency = '".$this->receivedData['currency']."'
                              AND barzahlen_transaction_id = '". $this->receivedData['transaction_id'] ."'");
     if(tep_db_num_rows($query) != 1) {
       $this->_bzLog('model/ipn: No corresponding order found in database - ' . serialize($this->receivedData));
       return false;
     }
+    $result = tep_db_fetch_array($query);
+    $this->orderId = $result['orders_id'];
+
+    if(array_key_exists('order_id', $this->receivedData)) {
+      if($this->orderId != $this->receivedData['order_id']) {
+        $this->_bzLog('model/ipn: Order id doesn\'t match - ' . serialize($this->receivedData));
+        return false;
+      }
+    }
 
     // check order total
     $query = tep_db_query("SELECT value FROM ". TABLE_ORDERS_TOTAL ."
-                           WHERE orders_id = '". $this->receivedData['order_id'] ."'
+                           WHERE orders_id = '". $this->orderId ."'
                              AND class = 'ot_total'");
     $result = tep_db_fetch_array($query);
     if($result['value'] != $this->receivedData['amount']) {
@@ -129,7 +138,7 @@ class BZ_Ipn {
 
     // check shop id
     if($this->receivedData['shop_id'] != MODULE_PAYMENT_BARZAHLEN_SHOPID) {
-      $this->_bzLog('model/ipn: Shop Id doesn\'t match - ' . serialize($this->receivedData));
+      $this->_bzLog('model/ipn: Shop id doesn\'t match - ' . serialize($this->receivedData));
       return false;
     }
 
@@ -144,8 +153,9 @@ class BZ_Ipn {
   function canUpdateTransaction() {
 
     $query = tep_db_query("SELECT * FROM ". TABLE_ORDERS ."
-                           WHERE barzahlen_transaction_state = '".self::STATE_PENDING."'
-                           AND barzahlen_transaction_id = '". $this->receivedData['transaction_id'] ."'");
+                           WHERE barzahlen_transaction_state = '". self::STATE_PENDING ."'
+                             AND barzahlen_transaction_id = '". $this->receivedData['transaction_id'] ."'
+                             AND orders_id = '". $this->orderId ."'");
 
     if(tep_db_num_rows($query) != 1) {
       $this->_bzLog('model/ipn: Transaction for this order already paid / expired - ' . serialize($this->receivedData));
@@ -163,12 +173,12 @@ class BZ_Ipn {
     tep_db_query("UPDATE ". TABLE_ORDERS ."
                   SET orders_status = '". MODULE_PAYMENT_BARZAHLEN_PAID_STATUS ."',
                       barzahlen_transaction_state = '".self::STATE_PAID."'
-                  WHERE orders_id = '". $this->receivedData['order_id'] ."'");
+                  WHERE orders_id = '". $this->orderId ."'");
 
     tep_db_query("INSERT INTO ". TABLE_ORDERS_STATUS_HISTORY ."
                   (orders_id, orders_status_id, date_added, customer_notified, comments)
                   VALUES
-                  ('". $this->receivedData['order_id'] ."', '". MODULE_PAYMENT_BARZAHLEN_PAID_STATUS ."',
+                  ('". $this->orderId ."', '". MODULE_PAYMENT_BARZAHLEN_PAID_STATUS ."',
                   now(), 1, '". MODULE_PAYMENT_BARZAHLEN_TEXT_TRANSACTION_PAID ."')");
   }
 
@@ -180,12 +190,12 @@ class BZ_Ipn {
     tep_db_query("UPDATE ". TABLE_ORDERS ."
                   SET orders_status = '". MODULE_PAYMENT_BARZAHLEN_EXPIRED_STATUS ."',
                       barzahlen_transaction_state = '".self::STATE_EXPIRED."'
-                  WHERE orders_id = '". $this->receivedData['order_id'] ."'");
+                  WHERE orders_id = '". $this->orderId ."'");
 
     tep_db_query("INSERT INTO ". TABLE_ORDERS_STATUS_HISTORY ."
                   (orders_id, orders_status_id, date_added, customer_notified, comments)
                   VALUES
-                  ('". $this->receivedData['order_id'] ."', '". MODULE_PAYMENT_BARZAHLEN_EXPIRED_STATUS ."',
+                  ('". $this->orderId ."', '". MODULE_PAYMENT_BARZAHLEN_EXPIRED_STATUS ."',
                   now(), 1, '". MODULE_PAYMENT_BARZAHLEN_TEXT_TRANSACTION_EXPIRED ."')");
   }
 
@@ -197,7 +207,7 @@ class BZ_Ipn {
   function _bzLog($message) {
 
     $time = date("[Y-m-d H:i:s] ");
-    $logFile = DIR_FS_CATALOG . 'ext/modules/payment/barzahlen/barzahlen.log';
+    $logFile = DIR_FS_CATALOG . 'logfiles/barzahlen.log';
 
     error_log($time . $message . "\r\r", 3, $logFile);
   }

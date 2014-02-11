@@ -203,3 +203,26 @@ INSERT IGNORE INTO `orders_total` VALUES(13, 4, 'Zwischensumme:', ' 119,00 EUR',
 INSERT IGNORE INTO `orders_total` VALUES(14, 4, 'Deutscher Paket Dienst (Versand nach DE : 3 kg):', ' 3,07 EUR', 3.0700, 'ot_shipping', 30);
 INSERT IGNORE INTO `orders_total` VALUES(15, 4, 'inkl. MwSt. 19%:', ' 19,00 EUR', 19.0000, 'ot_tax', 50);
 INSERT IGNORE INTO `orders_total` VALUES(16, 4, '<b>Summe</b>:', '<strong> 122,07 EUR</strong>', 122.0700, 'ot_total', 99);
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `languages`
+--
+
+CREATE TABLE IF NOT EXISTS `languages` (
+  `languages_id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(32) NOT NULL,
+  `code` char(2) NOT NULL,
+  `image` varchar(64) DEFAULT NULL,
+  `directory` varchar(32) DEFAULT NULL,
+  `sort_order` int(3) DEFAULT NULL,
+  PRIMARY KEY (`languages_id`),
+  KEY `IDX_LANGUAGES_NAME` (`name`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=2 ;
+
+--
+-- Daten für Tabelle `languages`
+--
+
+INSERT IGNORE INTO `languages` (`languages_id`, `name`, `code`, `image`, `directory`, `sort_order`) VALUES (1, 'English', 'en', 'icon.gif', 'english', 1);

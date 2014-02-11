@@ -55,7 +55,6 @@ class ModuleBarzahlenTest extends PHPUnit_Framework_TestCase {
     $this->assertFalse($this->object->pre_confirmation_check());
     $this->assertFalse($this->object->confirmation());
     $this->assertFalse($this->object->process_button());
-    $this->assertFalse($this->object->before_process());
     $this->assertFalse($this->object->output_error());
   }
 
@@ -134,15 +133,16 @@ class ModuleBarzahlenTest extends PHPUnit_Framework_TestCase {
             </response>';
 
     $this->object = $this->getMock('barzahlen', array('_sendTransArray'));
-    $this->object->expects($this->once())
+    $this->object->expects($this->any())
                  ->method('_sendTransArray')
                  ->will($this->returnValue($xml));
 
-    $this->object->after_process();
+    $this->object->before_process();
     $this->assertEquals('https://cdn.barzahlen.de/slip/227840174/c91dc292bdb8f0ba1a83c738119ef13e652a43b8a8f261cf93d3bfbf233d7da2.pdf', $_SESSION['payment-slip-link']);
     $this->assertEquals('Text mit einem <a href="https://www.barzahlen.de" target="_blank">Link</a>', $_SESSION['infotext-1']);
     $this->assertEquals('Text mit einem <a href="https://www.barzahlen.de" target="_blank">Link</a>', $_SESSION['infotext-2']);
     $this->assertEquals('Der Zahlschein ist 10 Tage gueltig.', $_SESSION['expiration-notice']);
+    $this->object->after_process();
   }
 
   /**
@@ -172,20 +172,18 @@ class ModuleBarzahlenTest extends PHPUnit_Framework_TestCase {
                  ->method('_sendTransArray')
                  ->will($this->onConsecutiveCalls($xml1, $xml2));
 
-    $this->object->after_process();
+    $this->object->before_process();
     $this->assertEquals('https://cdn.barzahlen.de/slip/227840174/c91dc292bdb8f0ba1a83c738119ef13e652a43b8a8f261cf93d3bfbf233d7da2.pdf', $_SESSION['payment-slip-link']);
     $this->assertEquals('Text mit einem <a href="https://www.barzahlen.de" target="_blank">Link</a>', $_SESSION['infotext-1']);
     $this->assertEquals('Text mit einem <a href="https://www.barzahlen.de" target="_blank">Link</a>', $_SESSION['infotext-2']);
     $this->assertEquals('Der Zahlschein ist 10 Tage gueltig.', $_SESSION['expiration-notice']);
+    $this->object->after_process();
   }
 
   /**
    * Tests payment action with invalid hash.
    */
   public function testPaymentActionWithInvalidHash() {
-
-    $_SESSION['infotext-1'] = 'Random infotext from further transaction.';
-    $_SESSION['infotext-2'] = 'Random infotext from further transaction.';
 
     $xml = '<?xml version="1.0" encoding="UTF-8"?>
             <response>
@@ -203,7 +201,7 @@ class ModuleBarzahlenTest extends PHPUnit_Framework_TestCase {
                  ->method('_sendTransArray')
                  ->will($this->returnValue($xml));
 
-    $this->object->after_process();
+    $this->object->before_process();
     $this->assertFalse(array_key_exists('payment-slip-link', $_SESSION));
     $this->assertFalse(array_key_exists('infotext-1', $_SESSION));
     $this->assertFalse(array_key_exists('infotext-2', $_SESSION));
@@ -225,7 +223,7 @@ class ModuleBarzahlenTest extends PHPUnit_Framework_TestCase {
               <result>0</result>
             </response>';
 
-    $this->assertEquals(null, $this->object->_getResponseData($xml));
+    $this->assertEquals(null, $this->object->_getResponseData('create', $xml));
   }
 
   /**
@@ -235,6 +233,10 @@ class ModuleBarzahlenTest extends PHPUnit_Framework_TestCase {
 
     unset($this->db);
     unset($this->object);
+    unset($_SESSION['payment-slip-link']);
+    unset($_SESSION['infotext-1']);
+    unset($_SESSION['infotext-2']);
+    unset($_SESSION['expiration-notice']);
   }
 }
 

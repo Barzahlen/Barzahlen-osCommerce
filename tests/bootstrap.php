@@ -23,7 +23,7 @@
  */
 
 require_once('src/includes/languages/german/modules/payment/barzahlen.php');
-$_SESSION['languages_code'] = 'de';
+$_SESSION['languages_id'] = '1';
 $_SESSION['language'] = 'german';
 $_SESSION['payment_method_messages'] = '';
 define('DEFAULT_LANGUAGE','de');
@@ -38,6 +38,7 @@ define('DB_PASSWORD','oscommerce');
 define('DB_DATABASE','oscommerce_copy');
 
 define('TABLE_CONFIGURATION','configuration');
+define('TABLE_LANGUAGES','languages');
 define('TABLE_ORDERS','orders');
 define('TABLE_ORDERS_STATUS_HISTORY','orders_status_history');
 define('TABLE_ORDERS_TOTAL','orders_total');
@@ -52,7 +53,7 @@ define('MODULE_PAYMENT_BARZAHLEN_ALLOWED','DE');
 define('MODULE_PAYMENT_BARZAHLEN_SHOPID','10003');
 define('MODULE_PAYMENT_BARZAHLEN_PAYMENTKEY','20a7e7235b2de0e0fda66ff8ae06665fb2470b69');
 define('MODULE_PAYMENT_BARZAHLEN_NOTIFICATIONKEY','20bc75e9ca4b72f4b216bf623299295a5a814541');
-define('MODULE_PAYMENT_BARZAHLEN_MAXORDERTOTAL','1000.00');
+define('MODULE_PAYMENT_BARZAHLEN_MAXORDERTOTAL','999.99');
 define('MODULE_PAYMENT_BARZAHLEN_SORT_ORDER','0');
 
 /**
@@ -81,7 +82,7 @@ class db_handler {
     $delete = mysql_query("DROP TABLE ". TABLE_ORDERS_TOTAL);
     mysql_close();
 
-    $fh = fopen( 'src/ext/modules/payment/barzahlen/barzahlen.log', 'w' );
+    $fh = fopen( 'src/logfiles/barzahlen.log', 'w' );
     fclose($fh);
   }
 }
@@ -125,6 +126,10 @@ class order {
         $this->customer['email_address'] = 'foo@bar.com';
         $this->info['total'] = '122.07';
         $this->info['currency'] = 'EUR';
+        $this->customer['street_address'] = 'Musterstr. 1a';
+        $this->customer['postcode'] = '12345';
+        $this->customer['city'] = 'Musterstadt';
+        $this->customer['country'] = array('iso_code_2' => 'DE');
         $this->billing['country']['iso_code_2'] = 'de';
       default:
         break;
