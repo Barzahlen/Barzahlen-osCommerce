@@ -6,4 +6,4 @@ Barzahlen Payment Module (osCommerce)
 http://www.barzahlen.de
 
 ==Current Version==
-1.1.0
+1.1.1

@@ -1,3 +1,7 @@
+==1.1.1 (04.12.2012)==
+* refactored payment process code
+* increased reliability of avoiding total order amount miscalculation
+
 ==1.1.0 (30.10.2012)==
 * implemented new api geocoding feature to get the closest points of sales
 * reduced the maximum amount to 999.99 Euros
