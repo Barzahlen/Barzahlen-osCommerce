@@ -1,4 +1,10 @@
-require(DIR_FS_CATALOG . 'ext/modules/payment/barzahlen/success.php');
-$bzSuccess = new bzSuccess($orders['orders_id']);
-
-$bzSuccess->getPaymentSlip();
+<?php
+//BOF - Barzahlen - 2013-01-28: Barzahlen Checkout Page
+$query = tep_db_query("SELECT payment_method FROM ". TABLE_ORDERS ." WHERE orders_id = '". $orders['orders_id'] ."'");
+$result = tep_db_fetch_array($query);
+if ($result['payment_method'] == 'Barzahlen' && isset($_SESSION['infotext-1'])) {
+  echo $_SESSION['infotext-1'];
+  unset($_SESSION['infotext-1']);
+}
+//EOF - Barzahlen - 2013-01-28: Barzahlen Checkout Page
+?>

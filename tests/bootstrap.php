@@ -109,6 +109,9 @@ function tep_image($path) {
 function tep_redirect($path) {
   return $path;
 }
+function tep_href_link($file, $settings, $ssl) {
+  return $file;
+}
 
 /**
  * Fake order.

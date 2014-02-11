@@ -36,7 +36,7 @@ class barzahlen {
   function barzahlen() {
 
     $this->code = 'barzahlen';
-    $this->version = '1.1.1';
+    $this->version = '1.1.2';
     $this->title = MODULE_PAYMENT_BARZAHLEN_TEXT_TITLE;
     $this->description = '<div align="center">' . tep_image('http://cdn.barzahlen.de/images/barzahlen_logo.png', MODULE_PAYMENT_BARZAHLEN_TEXT_TITLE) . '</div><br>' . MODULE_PAYMENT_BARZAHLEN_TEXT_DESCRIPTION;
     $this->sort_order = MODULE_PAYMENT_BARZAHLEN_SORT_ORDER;
@@ -94,7 +94,7 @@ class barzahlen {
 
       for($i = 1; $i <= 10; $i++) {
         $count = str_pad($i,2,"0",STR_PAD_LEFT);
-        $description .= '<img src="http://cdn.barzahlen.de/images/barzahlen_partner_'.$count.'.png" alt="" />';
+        $description .= '<img src="http://cdn.barzahlen.de/images/barzahlen_partner_'.$count.'.png" alt="" style="vertical-align: middle; height: 25px;" />';
       }
 
       return array('id' => $this->code , 'module' => $title , 'fields' => array(array('field' => $description)));
@@ -171,10 +171,7 @@ class barzahlen {
     $last = tep_db_fetch_array($query);
 
     if($xmlArray != null) {
-      $_SESSION['payment-slip-link']  = $xmlArray['payment-slip-link'];
       $_SESSION['infotext-1']  = $xmlArray['infotext-1'];
-      $_SESSION['infotext-2']  = $xmlArray['infotext-2'];
-      $_SESSION['expiration-notice']  = $xmlArray['expiration-notice'];
 
       // set transaction details
       tep_db_query("UPDATE ". TABLE_ORDERS ."
@@ -201,7 +198,7 @@ class barzahlen {
                         comments = '". MODULE_PAYMENT_BARZAHLEN_TEXT_PAYMENT_ATTEMPT_FAILED ."'
                     WHERE orders_status_history_id = '".$last['orders_status_history_id']."'");
 
-      tep_redirect(DIR_WS_CATALOG . FILENAME_CHECKOUT_PAYMENT . '?payment_error=barzahlen&' . session_name() . '=' . session_id());
+      tep_redirect(tep_href_link(FILENAME_CHECKOUT_PAYMENT, 'payment_error=barzahlen&' . session_name() . '=' . session_id(), 'SSL'));
     }
   }
 

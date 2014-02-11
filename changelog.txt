@@ -1,3 +1,6 @@
+==1.1.2 (28.01.2013)==
+* redesigned payment selection and checkout success page
+
 ==1.1.1 (04.12.2012)==
 * refactored payment process code
 * increased reliability of avoiding total order amount miscalculation

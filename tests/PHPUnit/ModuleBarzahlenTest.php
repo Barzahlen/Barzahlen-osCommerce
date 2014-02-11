@@ -98,7 +98,7 @@ class ModuleBarzahlenTest extends PHPUnit_Framework_TestCase {
 
     for($i = 1; $i <= 10; $i++) {
       $count = str_pad($i,2,"0",STR_PAD_LEFT);
-      $description .= '<img src="http://cdn.barzahlen.de/images/barzahlen_partner_'.$count.'.png" alt="" />';
+      $description .= '<img src="http://cdn.barzahlen.de/images/barzahlen_partner_'.$count.'.png" alt="" style="vertical-align: middle; height: 25px;" />';
     }
 
     $expected = array('id' => 'barzahlen',
@@ -139,10 +139,7 @@ class ModuleBarzahlenTest extends PHPUnit_Framework_TestCase {
                  ->will($this->returnValue($xml));
 
     $this->object->after_process();
-    $this->assertEquals('https://cdn.barzahlen.de/slip/227840174/c91dc292bdb8f0ba1a83c738119ef13e652a43b8a8f261cf93d3bfbf233d7da2.pdf', $_SESSION['payment-slip-link']);
     $this->assertEquals('Text mit einem <a href="https://www.barzahlen.de" target="_blank">Link</a>', $_SESSION['infotext-1']);
-    $this->assertEquals('Text mit einem <a href="https://www.barzahlen.de" target="_blank">Link</a>', $_SESSION['infotext-2']);
-    $this->assertEquals('Der Zahlschein ist 10 Tage gueltig.', $_SESSION['expiration-notice']);
   }
 
   /**
@@ -173,10 +170,7 @@ class ModuleBarzahlenTest extends PHPUnit_Framework_TestCase {
                  ->will($this->onConsecutiveCalls($xml1, $xml2));
 
     $this->object->after_process();
-    $this->assertEquals('https://cdn.barzahlen.de/slip/227840174/c91dc292bdb8f0ba1a83c738119ef13e652a43b8a8f261cf93d3bfbf233d7da2.pdf', $_SESSION['payment-slip-link']);
     $this->assertEquals('Text mit einem <a href="https://www.barzahlen.de" target="_blank">Link</a>', $_SESSION['infotext-1']);
-    $this->assertEquals('Text mit einem <a href="https://www.barzahlen.de" target="_blank">Link</a>', $_SESSION['infotext-2']);
-    $this->assertEquals('Der Zahlschein ist 10 Tage gueltig.', $_SESSION['expiration-notice']);
   }
 
   /**
