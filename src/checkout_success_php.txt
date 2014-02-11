@@ -1,0 +1,4 @@
+require(DIR_FS_CATALOG . 'ext/modules/payment/barzahlen/success.php');
+$bzSuccess = new bzSuccess($orders['orders_id']);
+
+$bzSuccess->getPaymentSlip();
