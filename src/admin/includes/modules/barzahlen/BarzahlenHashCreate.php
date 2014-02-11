@@ -18,24 +18,29 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  * @copyright   Copyright (c) 2013 Zerebro Internet GmbH (http://www.barzahlen.de)
- * @author      Alexander Diebler
+ * @author      Mathias Hertlein
  * @license     http://opensource.org/licenses/GPL-2.0  GNU General Public License, version 2 (GPL-2.0)
  */
 
-require_once('model.ipn.php');
-chdir('../../../../');
-require_once('includes/application_top.php');
-$query = tep_db_query("SELECT directory FROM " . TABLE_LANGUAGES . " WHERE code = '" . DEFAULT_LANGUAGE . "'");
-$result = tep_db_fetch_array($query);
-require_once(DIR_WS_LANGUAGES . $result['directory'] . '/modules/payment/barzahlen.php');
+/**
+ * Hash creation for Barzahlen params
+ */
+class BarzahlenHashCreate
+{
+    const SEPERATOR = ";";
+    const HASH_ALGORITHM = "sha512";
 
-$ipn = new BZ_Ipn;
-
-if ($ipn->sendResponseHeader($_GET)) {
-    header("HTTP/1.1 200 OK");
-    header("Status: 200 OK");
-    $ipn->updateDatabase();
-} else {
-    header("HTTP/1.1 400 Bad Request");
-    header("Status: 400 Bad Request");
+    /**
+     * Creates Hash
+     *
+     * @param array $array
+     * @param string $key
+     * @return string
+     */
+    public function getHash($array, $key)
+    {
+        $array[] = $key;
+        $hash = implode(self::SEPERATOR, $array);
+        return hash(self::HASH_ALGORITHM, $hash);
+    }
 }

@@ -18,24 +18,28 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
  * @copyright   Copyright (c) 2013 Zerebro Internet GmbH (http://www.barzahlen.de)
- * @author      Alexander Diebler
+ * @author      Mathias Hertlein
  * @license     http://opensource.org/licenses/GPL-2.0  GNU General Public License, version 2 (GPL-2.0)
  */
 
-require_once('model.ipn.php');
-chdir('../../../../');
-require_once('includes/application_top.php');
-$query = tep_db_query("SELECT directory FROM " . TABLE_LANGUAGES . " WHERE code = '" . DEFAULT_LANGUAGE . "'");
-$result = tep_db_fetch_array($query);
-require_once(DIR_WS_LANGUAGES . $result['directory'] . '/modules/payment/barzahlen.php');
+require_once('src/admin/includes/modules/barzahlen/BarzahlenHashCreate.php');
 
-$ipn = new BZ_Ipn;
+class BarzahlenHashCreateTest extends PHPUnit_Framework_TestCase
+{
+    public function testCreatedHashIsCorrect()
+    {
+        $expectedHash = "514d01564e29400d27886815747dc080a358029431ec9440e48d5b85e630d8fceb75daabe5624bb36e10ed72b33d8f25bac0fca9d69d2597fe7b8e12c418bc8a";
 
-if ($ipn->sendResponseHeader($_GET)) {
-    header("HTTP/1.1 200 OK");
-    header("Status: 200 OK");
-    $ipn->updateDatabase();
-} else {
-    header("HTTP/1.1 400 Bad Request");
-    header("Status: 400 Bad Request");
+        $data = array(
+            'test',
+            123,
+            'foo',
+        );
+        $key = "ed0164df332a9e3e5cc858a738439dbf";
+
+        $hashCreate = new BarzahlenHashCreate();
+        $hash = $hashCreate->getHash($data, $key);
+
+        $this->assertEquals($expectedHash, $hash);
+    }
 }
